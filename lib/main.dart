@@ -55,6 +55,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final focusField = FocusNode(debugLabel: 'MainFocusField');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +64,80 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextField(
+              focusNode: focusField,
+              autofocus: false,
+              onTapOutside: (_) {
+                // FocusManager.instance.primaryFocus
+                //     ?.unfocus(disposition: UnfocusDisposition.scope);
+                bool primaryFocus = focusField.hasPrimaryFocus;
+                bool focus = focusField.hasFocus;
+
+                print('App Primary Focus: $primaryFocus');
+                print('Any focus Focus: $focus');
+
+                FocusManager.instance.primaryFocus?.unfocus();
+                bool primaryFocus2 = focusField.hasPrimaryFocus;
+                bool focus2 = focusField.hasFocus;
+
+                print('App Primary Focus 2: $primaryFocus2');
+                print('Any focus Focus 2: $focus2');
+
+                focusField.unfocus();
+                bool primaryFocus3 = focusField.hasPrimaryFocus;
+                bool focus3 = focusField.hasFocus;
+
+                print('App Primary Focus 3: $primaryFocus3');
+                print('Any focus Focus 3: $focus3');
+              },
+            ),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
+                    return SuccessPage();
+                  }));
+                },
+                child: const Text('Submit')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SuccessPage extends StatefulWidget {
+  const SuccessPage({super.key});
+
+  @override
+  State<SuccessPage> createState() => _SuccessPageState();
+}
+
+class _SuccessPageState extends State<SuccessPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text('WAHOO SUCCESS'),
+        leading: TextButton(
+          onPressed: () {
+            Navigator.of(context).pop;
+          },
+          child: Text('pop'),
+        ),
+      ),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            TextField(),
+            Icon(
+              Icons.sports_basketball_outlined,
+              size: 100,
+            )
           ],
         ),
       ),
