@@ -59,6 +59,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    focusField.addListener(() {
+      print('Focus Field Listener');
+      print('Focus Field Has Focus: ${focusField.hasFocus}');
+      print('Focus Field Has Primary Focus: ${focusField.hasPrimaryFocus}');
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -125,7 +130,7 @@ class _SuccessPageState extends State<SuccessPage> {
         title: Text('WAHOO SUCCESS'),
         leading: TextButton(
           onPressed: () {
-            Navigator.of(context).pop;
+            Navigator.of(context).pop();
           },
           child: Text('pop'),
         ),
