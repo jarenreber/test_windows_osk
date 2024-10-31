@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'osk.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -56,13 +58,44 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final focusField = FocusNode(debugLabel: 'MainFocusField');
+  final throwAwayNode = FocusNode(debugLabel: 'ThrowAwayNode');
+  int _listenerFocusPrimary = 0;
+  int _listenerFocusRegular = 0;
+  int _listenerThrowAwayPrimary = 0;
+  int _listenerThrowAwayRegular = 0;
+  int _tapOutsideFocusFirst = 0;
+  int _tapOutsideThrowAwayFirst = 0;
+  int _tapOutsideFocusLast = 0;
+  int _tapOutsideThrowAwayLast = 0;
+
+  void _nodePrints(FocusNode node, String humanId) {
+    print('$humanId Focus: ${node.hasFocus}');
+    print('$humanId Primary Focus ${node.hasPrimaryFocus}');
+  }
 
   @override
   Widget build(BuildContext context) {
+    FocusManager.instance.primaryFocus?.addListener(() {
+      print('Focus Manager State:\n'
+          'Primary Focus: ${FocusManager.instance.primaryFocus?.hasPrimaryFocus}\n'
+          'Focus ${FocusManager.instance.primaryFocus?.hasFocus}\n'
+          '${FocusManager.instance.runtimeType}');
+    });
     focusField.addListener(() {
-      print('Focus Field Listener');
-      print('Focus Field Has Focus: ${focusField.hasFocus}');
-      print('Focus Field Has Primary Focus: ${focusField.hasPrimaryFocus}');
+      print(
+          'Focus Field Has Focus: ${focusField.hasFocus} ${_listenerFocusRegular++}');
+      print(
+          'Focus Field Has Primary Focus: ${focusField.hasPrimaryFocus} ${_listenerFocusPrimary++}');
+      if (!focusField.hasFocus || !focusField.hasPrimaryFocus) {
+        print('FLUTTER OSK CLOSE KEYBOARD');
+        WindowsOSK.close();
+      }
+    });
+    throwAwayNode.addListener(() {
+      print(
+          'ThrowAwayNode Has Focus: ${throwAwayNode.hasFocus} ${_listenerThrowAwayRegular++}');
+      print(
+          'ThrowAwayNode Has Primary Focus: ${throwAwayNode.hasPrimaryFocus} ${_listenerThrowAwayPrimary++}');
     });
     return Scaffold(
       appBar: AppBar(
@@ -79,34 +112,34 @@ class _MyHomePageState extends State<MyHomePage> {
               onTapOutside: (_) {
                 // FocusManager.instance.primaryFocus
                 //     ?.unfocus(disposition: UnfocusDisposition.scope);
-                bool primaryFocus = focusField.hasPrimaryFocus;
-                bool focus = focusField.hasFocus;
+                _nodePrints(
+                    focusField, 'TextFieldFocus ${_tapOutsideFocusFirst++}');
+                _nodePrints(throwAwayNode,
+                    'ThrowAwayFocus ${_tapOutsideThrowAwayFirst++}');
 
-                print('App Primary Focus: $primaryFocus');
-                print('Any focus Focus: $focus');
+                // FocusManager.instance.primaryFocus?.requestFocus(throwAwayNode);
+                // FocusScope.of(context).requestFocus(throwAwayNode);
+                // FocusManager.instance.primaryFocus?.unfocus();
+                FocusScope.of(context).unfocus();
 
-                FocusManager.instance.primaryFocus?.unfocus();
-                bool primaryFocus2 = focusField.hasPrimaryFocus;
-                bool focus2 = focusField.hasFocus;
-
-                print('App Primary Focus 2: $primaryFocus2');
-                print('Any focus Focus 2: $focus2');
-
-                focusField.unfocus();
-                bool primaryFocus3 = focusField.hasPrimaryFocus;
-                bool focus3 = focusField.hasFocus;
-
-                print('App Primary Focus 3: $primaryFocus3');
-                print('Any focus Focus 3: $focus3');
+                _nodePrints(
+                    focusField, 'TextFieldFocus ${_tapOutsideFocusLast++}');
+                _nodePrints(throwAwayNode,
+                    'ThrowAwayFocus ${_tapOutsideThrowAwayLast++}');
+                // focusField.unfocus();
               },
             ),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) {
-                    return SuccessPage();
-                  }));
-                },
-                child: const Text('Submit')),
+            Focus(
+              focusNode: throwAwayNode,
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (ctx) {
+                      return SuccessPage();
+                    }));
+                  },
+                  child: const Text('Submit')),
+            ),
           ],
         ),
       ),
@@ -124,6 +157,12 @@ class SuccessPage extends StatefulWidget {
 class _SuccessPageState extends State<SuccessPage> {
   @override
   Widget build(BuildContext context) {
+    FocusManager.instance.primaryFocus?.addListener(() {
+      print('Focus Manager State:\n'
+          'Primary Focus: ${FocusManager.instance.primaryFocus?.hasPrimaryFocus}\n'
+          'Focus ${FocusManager.instance.primaryFocus?.hasFocus}\n'
+          '${FocusManager.instance.runtimeType}');
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
